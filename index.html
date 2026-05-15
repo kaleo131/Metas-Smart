@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Manual Metas SMART - Ciclo de Performance</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; 
+            background-color: #f3f4f6; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: calc(100vh - 80px); /* Ajustado para dar espaço ao novo painel */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: grab;
+        }
+
+        #canvas-container:active {
+            cursor: grabbing;
+        }
+
+        #main-image {
+            max-width: none;
+            width: 1920px; 
+            transform-origin: center center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+        }
+
+        /* Classe para ocultar a barra de rolagem mas permitir arrastar se faltar espaço */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        @media (max-width: 640px) {
+            .hide-on-mobile { display: none; }
+        }
+    </style>
+</head>
+<body class="antialiased text-gray-800 flex flex-col">
+
+    <!-- OVERLAY DE INÍCIO DA APRESENTAÇÃO (Novo) -->
+    <div id="start-overlay" class="fixed inset-0 z-[100] bg-white/70 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="bg-white p-8 md:p-12 rounded-3xl shadow-2xl flex flex-col items-center max-w-lg text-center border border-slate-200 transform transition-transform">
+            
+            <!-- Ícone de Play Animado -->
+            <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-6 animate-bounce">
+                <i data-lucide="play" class="w-10 h-10 ml-1"></i>
+            </div>
+            
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-800 mb-3">Ciclo de Performance</h1>
+            <p class="text-slate-500 mb-8">Bem-vindo(a) ao guia interativo de Metas SMART. Clique abaixo para iniciar a apresentação guiada por áudio.</p>
+            
+            <button onclick="startPresentation()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-lg transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-blue-600/30 flex items-center gap-2">
+                <i data-lucide="play-circle" class="w-6 h-6"></i>
+                Iniciar Apresentação
+            </button>
+            
+        </div>
+    </div>
+
+    <!-- Botão Voltar para Biblioteca -->
+    <a href="javascript:history.back()" class="fixed top-4 left-4 z-50 bg-white/90 backdrop-blur-sm border border-slate-200 px-4 py-2 rounded-xl shadow-md flex items-center gap-2 hover:bg-slate-50 text-slate-700 transition-all font-medium text-sm tooltip" title="Voltar para a Biblioteca de Mídia">
+        <i data-lucide="library" class="w-4 h-4 text-blue-600"></i>
+        <span class="hide-on-mobile">Biblioteca</span>
+    </a>
+
+    <div id="canvas-container">
+        <img id="main-image" src="./metas.png" alt="Mapa Mental Metas SMART">
+    </div>
+
+    <!-- Novo Painel Inferior -->
+    <div class="h-[80px] bg-white border-t border-slate-200 px-4 md:px-8 w-full flex items-center justify-between shrink-0 shadow-[0_-4px_15px_rgba(0,0,0,0.02)] z-10 relative">
+        
+        <!-- Espaçador à esquerda para centralizar a paginação no meio da tela -->
+        <div class="w-1/4 hidden md:block"></div>
+
+        <!-- Container Central Limitado para Rolagem (Com Setas Próprias) -->
+        <div class="flex-1 flex justify-center items-center gap-1 md:gap-3">
+            
+            <!-- Seta Esquerda do Carrossel -->
+            <button onclick="scrollCarousel(-1)" class="p-1 md:p-2 rounded-full text-slate-400 hover:text-blue-600 hover:bg-slate-100 transition-colors shrink-0 tooltip" title="Rolar números">
+                <i data-lucide="chevron-left" class="w-4 h-4 md:w-5 md:h-5"></i>
+            </button>
+
+            <!-- Área de Rolagem dos Números -->
+            <div class="flex items-center justify-start gap-2 overflow-x-auto no-scrollbar py-2 scroll-smooth w-[260px] md:w-[380px]" id="pagination-container">
+                <!-- Os botões numéricos serão injetados aqui via JavaScript -->
+            </div>
+
+            <!-- Seta Direita do Carrossel -->
+            <button onclick="scrollCarousel(1)" class="p-1 md:p-2 rounded-full text-slate-400 hover:text-blue-600 hover:bg-slate-100 transition-colors shrink-0 tooltip" title="Rolar números">
+                <i data-lucide="chevron-right" class="w-4 h-4 md:w-5 md:h-5"></i>
+            </button>
+        </div>
+
+        <!-- Reprodutor de Áudio (Direita) -->
+        <div class="flex items-center justify-end w-full md:w-1/4">
+            <div class="flex flex-col items-end">
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mr-1 mb-0.5">Narração</span>
+                <audio id="presentation-audio" src="./audio.mp3" controls class="h-8 md:h-10 w-48 md:w-64 outline-none rounded-lg bg-slate-50"></audio>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // NOVA FUNÇÃO: Iniciar a apresentação e esconder o overlay
+        function startPresentation() {
+            const overlay = document.getElementById('start-overlay');
+            const audio = document.getElementById('presentation-audio');
+
+            // Inicia o fade out
+            overlay.classList.add('opacity-0');
+            
+            // Espera a animação de opacidade terminar e então esconde o elemento
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                
+                // Dá o play no áudio
+                if (audio) {
+                    audio.playbackRate = 1.25; // Definindo velocidade padrão para 1,25x
+                    audio.play().catch(e => console.log("O navegador bloqueou o autoplay:", e));
+                }
+            }, 500); // 500ms é o mesmo tempo do duration-500 no CSS do overlay
+        }
+
+        let panzoom;
+        const elem = document.getElementById('main-image');
+
+        // Suas coordenadas mapeadas AGORA COM TEMPO (time) EM SEGUNDOS
+        const steps = [
+            { id: 0, title: "1. Visão Geral", scale: 1.1, x: 44, y: 7, time: 0 },
+            { id: 1, title: "2. O DNA de uma Meta SMART", scale: 1.4, x: 242, y: -39, time: 80 },
+            { id: 2, title: "3. S - Específica", scale: 3.6, x: 392, y: 48, time: 163 },
+            { id: 3, title: "4. M - Mensurável", scale: 3.3, x: 107, y: 47, time: 295 },
+            { id: 4, title: "5. A - Alcançável", scale: 3.0, x: 255, y: -54, time: 385 },
+            { id: 5, title: "6. R - Realista", scale: 3.6, x: 395, y: -167, time: 525 },
+            { id: 6, title: "7. T - Temporal", scale: 3.6, x: 106, y: -169, time: 602 },
+            { id: 7, title: "8. Do Genérico ao SMART", scale: 2.5, x: -202, y: 52, time: 695 },
+            { id: 8, title: "9. Checklist de Validação & IA", scale: 2.7, x: -203, y: -147, time: 1050 },
+            { id: 9, title: "10. Voltar ao Início", scale: 1.1, x: 44, y: 7, time: 1365 }, // NOVO: Volta para o panorama geral
+        ];
+
+        let currentStepIndex = 0;
+
+        // Função para criar os botões numéricos na barra inferior
+        function initPagination() {
+            const container = document.getElementById('pagination-container');
+            container.innerHTML = ''; // Limpa caso rode novamente
+            
+            // ESPAÇADOR INICIAL: Garante "pista" para o item 1 chegar no centro
+            container.insertAdjacentHTML('beforeend', '<div class="shrink-0 w-[130px] md:w-[190px]"></div>');
+
+            steps.forEach((step, index) => {
+                container.insertAdjacentHTML('beforeend', `
+                    <button onclick="goToStep(${index})" 
+                            id="page-btn-${index}" 
+                            onmouseenter="handleMouseEnter(${index}, this)"
+                            onmouseleave="hideGlobalTooltip()"
+                            class="relative flex items-center justify-center rounded-full transition-all duration-300 shrink-0">
+                        <span id="page-label-${index}" class="transition-all duration-300 whitespace-nowrap font-medium"></span>
+                    </button>
+                `);
+            });
+
+            // ESPAÇADOR FINAL: Garante "pista" para o último item chegar no centro
+            container.insertAdjacentHTML('beforeend', '<div class="shrink-0 w-[130px] md:w-[190px]"></div>');
+        }
+
+        // Lógica de LENTE DE FOCO e atualização da interface
+        function updateUI() {
+            steps.forEach((step, index) => {
+                const btn = document.getElementById(`page-btn-${index}`);
+                const label = document.getElementById(`page-label-${index}`);
+                
+                // Calcula a distância desse botão para o ativo
+                const distance = Math.abs(index - currentStepIndex);
+                
+                if (distance === 0) {
+                    // ATIVO - Cilindro completo e espaçoso
+                    btn.className = "flex items-center justify-center rounded-full transition-all duration-500 bg-blue-600 text-white shadow-md ring-4 ring-blue-100 shrink-0 h-10 px-4 md:px-5 cursor-default";
+                    label.innerText = step.title; 
+                    label.className = "whitespace-nowrap font-bold text-sm md:text-base";
+                } else if (distance === 1) {
+                    // VIZINHO DIRETO - Círculo grande normal
+                    btn.className = "flex items-center justify-center rounded-full transition-all duration-500 bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-blue-600 shrink-0 h-10 w-10 cursor-pointer";
+                    label.innerText = index + 1; 
+                    label.className = "font-medium text-sm md:text-base";
+                } else if (distance === 2) {
+                    // MAIS DISTANTE - Círculo médio
+                    btn.className = "flex items-center justify-center rounded-full transition-all duration-500 bg-slate-100/80 text-slate-400 hover:bg-slate-200 hover:text-blue-600 shrink-0 h-8 w-8 cursor-pointer";
+                    label.innerText = index + 1; 
+                    label.className = "font-medium text-xs";
+                } else {
+                    // MUITO DISTANTE - Círculo pequenininho
+                    btn.className = "flex items-center justify-center rounded-full transition-all duration-500 bg-slate-100/50 text-slate-300 hover:bg-slate-200 hover:text-blue-600 shrink-0 h-6 w-6 cursor-pointer opacity-70 hover:opacity-100";
+                    label.innerText = index + 1; 
+                    label.className = "font-medium text-[10px]";
+                }
+            });
+
+            hideGlobalTooltip(); // Garante que o balão não fique preso ao mudar de tela
+
+            // MÁGICA DO CARROSSEL: Rola suavemente para centralizar o botão
+            const activeBtn = document.getElementById(`page-btn-${currentStepIndex}`);
+            if (activeBtn) {
+                setTimeout(() => {
+                    activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }, 100); // 100ms permite o CSS do botão esticar antes do cálculo
+            }
+        }
+
+        // Funções do Balão Flutuante Universal (Sem cortes!)
+        function handleMouseEnter(index, element) {
+            // Só exibe balão se não for o botão que já está aberto
+            if (index !== currentStepIndex) {
+                const tooltip = document.getElementById('global-tooltip');
+                document.getElementById('global-tooltip-text').innerText = steps[index].title;
+                
+                // Pega a posição na tela do número onde o mouse está
+                const rect = element.getBoundingClientRect();
+                
+                // Posiciona o balão perfeitamente acima do número
+                tooltip.style.left = (rect.left + rect.width / 2) + 'px';
+                tooltip.style.top = (rect.top - 8) + 'px'; 
+                tooltip.style.transform = 'translate(-50%, -100%)';
+                
+                tooltip.classList.remove('opacity-0', 'invisible');
+            }
+        }
+
+        function hideGlobalTooltip() {
+            const tooltip = document.getElementById('global-tooltip');
+            if (tooltip) tooltip.classList.add('opacity-0', 'invisible');
+        }
+
+        // Função de Rolar as setinhas do Carrossel de números
+        function scrollCarousel(direction) {
+            const container = document.getElementById('pagination-container');
+            // Move 150 pixels para esquerda (-1) ou direita (1)
+            container.scrollBy({ left: direction * 150, behavior: 'smooth' });
+        }
+
+        function goToStep(index, syncAudio = true) {
+            if (!panzoom || index < 0 || index >= steps.length) return;
+            
+            // Impede a câmera de ficar piscando/repetindo se já estiver no lugar
+            if (currentStepIndex === index && !syncAudio) return;
+
+            currentStepIndex = index;
+            const step = steps[index];
+            
+            panzoom.pan(step.x, step.y, { animate: true, duration: 1200 });
+            setTimeout(() => {
+                panzoom.zoom(step.scale, { animate: true, duration: 1200 });
+            }, 50); 
+
+            updateUI();
+
+            // Sincroniza o áudio caso o usuário tenha clicado nos botões (Navegação Manual)
+            const audio = document.getElementById('presentation-audio');
+            if (syncAudio && audio) {
+                audio.currentTime = step.time;
+            }
+        }
+
+        // --- NOVA LÓGICA DE ESCUTA DO ÁUDIO ---
+        const audioPlayer = document.getElementById('presentation-audio');
+        if (audioPlayer) {
+            audioPlayer.addEventListener('timeupdate', () => {
+                const currentTime = audioPlayer.currentTime;
+                let targetStep = 0;
+
+                // Lê a lista de trás pra frente e descobre em qual cena o áudio está
+                for (let i = steps.length - 1; i >= 0; i--) {
+                    if (currentTime >= steps[i].time) {
+                        targetStep = i;
+                        break;
+                    }
+                }
+
+                // Move a tela apenas se for uma etapa nova
+                if (currentStepIndex !== targetStep) {
+                    // O 'false' indica que o movimento veio do áudio, para ele não tentar mudar o tempo do áudio de volta
+                    goToStep(targetStep, false); 
+                }
+            });
+        }
+        // ----------------------------------------
+
+        function nextStep() {
+            if (currentStepIndex < steps.length - 1) {
+                goToStep(currentStepIndex + 1);
+            } else {
+                goToStep(0);
+            }
+        }
+
+        function prevStep() {
+            if (currentStepIndex > 0) {
+                goToStep(currentStepIndex - 1);
+            }
+        }
+
+        window.onload = () => {
+            initPagination(); // Renderiza os números antes de iniciar
+            
+            // Garante que o áudio já comece em 1.25x na interface de controle do usuário
+            const audio = document.getElementById('presentation-audio');
+            if (audio) {
+                audio.playbackRate = 1.25;
+            }
+            
+            if (elem.complete && elem.naturalHeight !== 0) {
+                iniciarPanzoom();
+            } else {
+                elem.onload = iniciarPanzoom;
+                elem.onerror = () => alert("Erro ao carregar a imagem. Verifique se o arquivo se chama 'metas.png' e está na mesma pasta.");
+            }
+        };
+
+        function iniciarPanzoom() {
+            panzoom = Panzoom(elem, {
+                maxScale: 6,        
+                minScale: 1.1,      // TRAVA RIGOROSA NA VISÃO GERAL (O Zoom não passa daqui)
+                step: 0.15,         
+                animate: true,      
+                duration: 1200,     // Aumentei a suavidade do zoom pelo mouse também 
+            });
+
+            elem.parentElement.addEventListener('wheel', panzoom.zoomWithWheel);
+
+            // LOGICA DO EFEITO ÍMÃ (Magnetic Center)
+            // Função que puxa a tela de volta para o ponto 1 caso o usuário tire todo o zoom
+            const applyMagneticCenter = () => {
+                // Dá um tempinho super rápido para a animação do scroll do mouse processar
+                setTimeout(() => {
+                    if (panzoom.getScale() <= 1.11) {
+                        // Suaviza a puxada magnética também
+                        panzoom.pan(44, 7, { animate: true, duration: 1000 });
+                        currentStepIndex = 0; // Atualiza a etapa para "Visão Geral"
+                        updateUI();
+                    }
+                }, 100);
+            };
+
+            // Dispara o Ímã quando o usuário der o zoom out máximo
+            elem.addEventListener('panzoomzoom', applyMagneticCenter);
+            
+            // Dispara o Ímã se o usuário tentar arrastar a imagem enquanto estiver no zoom mínimo
+            elem.addEventListener('panzoomend', applyMagneticCenter);
+
+            // Inicia automaticamente no passo 0
+            goToStep(0);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Space') nextStep();
+            if (e.key === 'ArrowLeft') prevStep();
+        });
+
+    </script>
+
+    <!-- HTML DO BALÃO FLUTUANTE (Fica solto no final do código para nada cobri-lo) -->
+    <div id="global-tooltip" class="fixed z-50 px-3 py-1.5 bg-slate-800 text-white text-xs md:text-sm whitespace-nowrap rounded-lg shadow-xl pointer-events-none transition-all duration-200 opacity-0 invisible">
+        <span id="global-tooltip-text"></span>
+        <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+    </div>
+
+</body>
+</html>
