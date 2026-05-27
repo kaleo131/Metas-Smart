@@ -57,9 +57,9 @@
 </head>
 <body class="antialiased text-gray-800 flex flex-col">
 
-    <!-- OVERLAY DE INÍCIO DA APRESENTAÇÃO (Novo) -->
+    <!-- OVERLAY DE INÍCIO DA APRESENTAÇÃO -->
     <div id="start-overlay" class="fixed inset-0 z-[100] bg-white/70 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-500">
-        <div class="bg-white p-8 md:p-12 rounded-3xl shadow-2xl flex flex-col items-center max-w-lg text-center border border-slate-200 transform transition-transform">
+        <div class="bg-white p-8 md:p-12 rounded-3xl shadow-2xl flex flex-col items-center max-w-lg w-11/12 text-center border border-slate-200 transform transition-transform">
             
             <!-- Ícone de Play Animado -->
             <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-6 animate-bounce">
@@ -67,12 +67,19 @@
             </div>
             
             <h1 class="text-2xl md:text-3xl font-bold text-slate-800 mb-3">Ciclo de Performance</h1>
-            <p class="text-slate-500 mb-8">Bem-vindo(a) ao guia interativo de Metas SMART. Clique abaixo para iniciar a apresentação guiada por áudio.</p>
+            <p class="text-slate-500 mb-8">Bem-vindo(a) ao guia interativo de Metas SMART. Escolha como deseja iniciar a apresentação.</p>
             
-            <button onclick="startPresentation()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-lg transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-blue-600/30 flex items-center gap-2">
-                <i data-lucide="play-circle" class="w-6 h-6"></i>
-                Iniciar Apresentação
-            </button>
+            <!-- Botões de Escolha de Áudio -->
+            <div class="flex flex-col sm:flex-row gap-4 w-full justify-center">
+                <button onclick="startPresentation(true)" class="px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-base transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 w-full sm:flex-1">
+                    <i data-lucide="volume-2" class="w-5 h-5"></i>
+                    Com Áudio
+                </button>
+                <button onclick="startPresentation(false)" class="px-6 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-full font-bold text-base transition-transform hover:scale-105 active:scale-95 shadow-sm flex items-center justify-center gap-2 w-full sm:flex-1">
+                    <i data-lucide="volume-x" class="w-5 h-5"></i>
+                    Sem Áudio
+                </button>
+            </div>
             
         </div>
     </div>
@@ -124,8 +131,8 @@
     <script>
         lucide.createIcons();
 
-        // NOVA FUNÇÃO: Iniciar a apresentação e esconder o overlay
-        function startPresentation() {
+        // NOVA FUNÇÃO: Iniciar a apresentação recebendo o parâmetro do áudio
+        function startPresentation(comAudio) {
             const overlay = document.getElementById('start-overlay');
             const audio = document.getElementById('presentation-audio');
 
@@ -136,9 +143,9 @@
             setTimeout(() => {
                 overlay.classList.add('hidden');
                 
-                // Dá o play no áudio
-                if (audio) {
-                    audio.playbackRate = 1.25; // Definindo velocidade padrão para 1,25x
+                // Dá o play no áudio caso o usuário tenha escolhido "Com Áudio"
+                if (comAudio && audio) {
+                    audio.playbackRate = 1.25; // Mantido 1.25x como padrão anterior
                     audio.play().catch(e => console.log("O navegador bloqueou o autoplay:", e));
                 }
             }, 500); // 500ms é o mesmo tempo do duration-500 no CSS do overlay
@@ -147,18 +154,18 @@
         let panzoom;
         const elem = document.getElementById('main-image');
 
-        // Suas coordenadas mapeadas AGORA COM TEMPO (time) EM SEGUNDOS
+        // Coordenadas com tempos reajustados para as marcações informadas
         const steps = [
             { id: 0, title: "1. Visão Geral", scale: 1.1, x: 44, y: 7, time: 0 },
-            { id: 1, title: "2. O DNA de uma Meta SMART", scale: 1.4, x: 242, y: -39, time: 80 },
-            { id: 2, title: "3. S - Específica", scale: 3.6, x: 392, y: 48, time: 163 },
-            { id: 3, title: "4. M - Mensurável", scale: 3.3, x: 107, y: 47, time: 295 },
-            { id: 4, title: "5. A - Alcançável", scale: 3.0, x: 255, y: -54, time: 385 },
-            { id: 5, title: "6. R - Realista", scale: 3.6, x: 395, y: -167, time: 525 },
-            { id: 6, title: "7. T - Temporal", scale: 3.6, x: 106, y: -169, time: 602 },
-            { id: 7, title: "8. Do Genérico ao SMART", scale: 2.5, x: -202, y: 52, time: 695 },
-            { id: 8, title: "9. Checklist de Validação & IA", scale: 2.7, x: -203, y: -147, time: 1050 },
-            { id: 9, title: "10. Voltar ao Início", scale: 1.1, x: 44, y: 7, time: 1365 }, // NOVO: Volta para o panorama geral
+            { id: 1, title: "2. O DNA de uma Meta SMART", scale: 1.4, x: 242, y: -39, time: 49 },  // 00:49
+            { id: 2, title: "3. S - Específica", scale: 3.6, x: 392, y: 48, time: 67 },         // 01:07
+            { id: 3, title: "4. M - Mensurável", scale: 3.3, x: 107, y: 47, time: 78 },         // 01:18
+            { id: 4, title: "5. A - Alcançável", scale: 3.0, x: 255, y: -54, time: 90 },        // 01:30
+            { id: 5, title: "6. R - Realista", scale: 3.6, x: 395, y: -167, time: 109 },        // 01:49
+            { id: 6, title: "7. T - Temporal", scale: 3.6, x: 106, y: -169, time: 137 },        // 02:17
+            { id: 7, title: "8. Do Genérico ao SMART", scale: 2.5, x: -202, y: 52, time: 161 }, // 02:41
+            { id: 8, title: "9. Checklist de Validação & IA", scale: 2.7, x: -203, y: -147, time: 275 }, // 04:35
+            { id: 9, title: "10. Resumo Final", scale: 1.1, x: 44, y: 7, time: 348 },           // 05:48
         ];
 
         let currentStepIndex = 0;
@@ -284,7 +291,7 @@
             }
         }
 
-        // --- NOVA LÓGICA DE ESCUTA DO ÁUDIO ---
+        // LÓGICA DE ESCUTA DO ÁUDIO
         const audioPlayer = document.getElementById('presentation-audio');
         if (audioPlayer) {
             audioPlayer.addEventListener('timeupdate', () => {
@@ -301,12 +308,16 @@
 
                 // Move a tela apenas se for uma etapa nova
                 if (currentStepIndex !== targetStep) {
-                    // O 'false' indica que o movimento veio do áudio, para ele não tentar mudar o tempo do áudio de volta
+                    // O 'false' indica que o movimento veio do áudio, para ele não tentar mudar o tempo
                     goToStep(targetStep, false); 
                 }
             });
+
+            // Volta para a página 1 apenas quando o áudio acaba totalmente
+            audioPlayer.addEventListener('ended', () => {
+                goToStep(0, false);
+            });
         }
-        // ----------------------------------------
 
         function nextStep() {
             if (currentStepIndex < steps.length - 1) {
@@ -351,12 +362,10 @@
             elem.parentElement.addEventListener('wheel', panzoom.zoomWithWheel);
 
             // LOGICA DO EFEITO ÍMÃ (Magnetic Center)
-            // Função que puxa a tela de volta para o ponto 1 caso o usuário tire todo o zoom
             const applyMagneticCenter = () => {
                 // Dá um tempinho super rápido para a animação do scroll do mouse processar
                 setTimeout(() => {
                     if (panzoom.getScale() <= 1.11) {
-                        // Suaviza a puxada magnética também
                         panzoom.pan(44, 7, { animate: true, duration: 1000 });
                         currentStepIndex = 0; // Atualiza a etapa para "Visão Geral"
                         updateUI();
@@ -381,7 +390,7 @@
 
     </script>
 
-    <!-- HTML DO BALÃO FLUTUANTE (Fica solto no final do código para nada cobri-lo) -->
+    <!-- HTML DO BALÃO FLUTUANTE -->
     <div id="global-tooltip" class="fixed z-50 px-3 py-1.5 bg-slate-800 text-white text-xs md:text-sm whitespace-nowrap rounded-lg shadow-xl pointer-events-none transition-all duration-200 opacity-0 invisible">
         <span id="global-tooltip-text"></span>
         <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
