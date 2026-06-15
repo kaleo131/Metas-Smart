@@ -96,8 +96,11 @@
         <span class="hide-on-mobile" id="fullscreen-text">Tela Cheia</span>
     </button>
 
-    <div id="canvas-container">
+    <div id="canvas-container" class="bg-[#f3f4f6]">
         <img id="main-image" src="./metas.png" alt="Mapa Mental Metas SMART">
+        
+        <div id="blur-overlay" class="absolute inset-0 bg-[#f3f4f6]/85 backdrop-blur-md opacity-0 transition-opacity duration-1000 z-10 pointer-events-none"></div>
+        <img id="img-capa" src="capa.png" alt="Capa Metas SMART" class="absolute max-w-5xl w-11/12 max-h-[85%] object-contain opacity-0 transition-all duration-1000 scale-95 z-20 pointer-events-none">
     </div>
 
     <div class="min-h-[80px] bg-white border-t border-slate-200 px-2 md:px-8 w-full flex flex-col md:flex-row items-center justify-between shrink-0 shadow-[0_-4px_15px_rgba(0,0,0,0.02)] z-50 relative py-3 md:py-0 gap-3 md:gap-0">
@@ -140,27 +143,34 @@
         const BASE_HEIGHT = 900;
 
         const steps = [
-            { id: 0, title: "1. Visão Geral", scale: 1.73, x: 25, y: 10, time: 0 },
-            { id: 1, title: "2. O DNA de uma Meta SMART", scale: 2.12, x: 248, y: -38, time: 49 },
-            { id: 2, title: "3. S - Específica", scale: 4.24, x: 386, y: 55, time: 67 },
-            { id: 3, title: "4. M - Mensurável", scale: 4.24, x: 104, y: 49, time: 78 },
-            { id: 4, title: "5. A - Alcançável", scale: 4.24, x: 252, y: -60, time: 90 },
-            { id: 5, title: "6. R - Realista", scale: 4.24, x: 395, y: -166, time: 109 },
-            { id: 6, title: "7. T - Temporal", scale: 4.24, x: 113, y: -167, time: 137 },
-            { id: 7, title: "8. Do Genérico ao SMART", scale: 3.84, x: -202, y: 55, time: 161 },
-            { id: 8, title: "9. Checklist de Validação & IA", scale: 4.24, x: -201, y: -140, time: 275 },
-            { id: 9, title: "10. Resumo Final", scale: 1.73, x: 25, y: 10, time: 348 },
+            { id: 0, title: "1. Capa", scale: 1.73, x: 25, y: 10, time: 0, type: 'capa' },
+            { id: 1, title: "2. Visão Geral", scale: 1.73, x: 25, y: 10, time: 28, type: 'geral' },
+            { id: 2, title: "3. O DNA de uma Meta SMART", scale: 2.12, x: 248, y: -38, time: 49, type: 'geral' },
+            { id: 3, title: "4. S - Específica", scale: 4.24, x: 386, y: 55, time: 67, type: 'geral' },
+            { id: 4, title: "5. M - Mensurável", scale: 4.24, x: 104, y: 49, time: 78, type: 'geral' },
+            { id: 5, title: "6. A - Alcançável", scale: 4.24, x: 252, y: -60, time: 90, type: 'geral' },
+            { id: 6, title: "7. R - Realista", scale: 4.24, x: 395, y: -166, time: 109, type: 'geral' },
+            { id: 7, title: "8. T - Temporal", scale: 4.24, x: 113, y: -167, time: 137, type: 'geral' },
+            { id: 8, title: "9. Do Genérico ao SMART", scale: 3.84, x: -202, y: 55, time: 161, type: 'geral' },
+            { id: 9, title: "10. Checklist de Validação & IA", scale: 4.24, x: -201, y: -140, time: 275, type: 'geral' },
+            { id: 10, title: "11. Resumo Geral", scale: 1.73, x: 25, y: 10, time: 348, type: 'geral' },
         ];
 
         let currentStepIndex = -1;
 
         function getRatio() {
-            const container = document.getElementById('canvas-container');
-            if (!container || container.clientWidth === 0) return 1;
-            const ratioW = container.clientWidth / BASE_WIDTH;
-            const ratioH = container.clientHeight / BASE_HEIGHT;
+            const w = window.innerWidth;
+            const h = window.innerHeight - 80; 
+            const ratioW = w / BASE_WIDTH;
+            const ratioH = h / BASE_HEIGHT;
             return Math.min(ratioW, ratioH);
         }
+
+        window.addEventListener('resize', () => {
+            if (currentStepIndex >= 0) {
+                goToStep(currentStepIndex, false, true);
+            }
+        });
 
         function startPresentation(comAudio) {
             const overlay = document.getElementById('start-overlay');
@@ -304,6 +314,21 @@
 
             updateUI();
 
+            const blurOverlay = document.getElementById('blur-overlay');
+            const imgCapa = document.getElementById('img-capa');
+
+            if (step.type === 'capa') {
+                blurOverlay.classList.replace('opacity-0', 'opacity-100');
+                imgCapa.classList.replace('opacity-0', 'opacity-100');
+                imgCapa.classList.replace('scale-95', 'scale-100');
+                imgCapa.classList.add('pointer-events-auto');
+            } else {
+                blurOverlay.classList.replace('opacity-100', 'opacity-0');
+                imgCapa.classList.replace('opacity-100', 'opacity-0');
+                imgCapa.classList.replace('scale-100', 'scale-95');
+                imgCapa.classList.remove('pointer-events-auto');
+            }
+
             const audio = document.getElementById('presentation-audio');
             if (syncAudio && audio) {
                 audio.currentTime = step.time;
@@ -372,24 +397,6 @@
             });
 
             elem.parentElement.addEventListener('wheel', panzoom.zoomWithWheel);
-
-            const applyMagneticCenter = () => {
-                setTimeout(() => {
-                    const currentRatio = getRatio(); 
-                    const targetScale = steps[0].scale * currentRatio;
-                    if (panzoom.getScale() <= targetScale + 0.1) {
-                        panzoom.zoom(targetScale, { animate: true, duration: 1000 });
-                        panzoom.pan(steps[0].x * currentRatio, steps[0].y * currentRatio, { animate: true, duration: 1000 });
-                        if (currentStepIndex !== 0) {
-                            currentStepIndex = 0; 
-                            updateUI();
-                        }
-                    }
-                }, 100);
-            };
-
-            elem.addEventListener('panzoomzoom', applyMagneticCenter);
-            elem.addEventListener('panzoomend', applyMagneticCenter);
 
             const resizeObserver = new ResizeObserver(() => {
                 if (currentStepIndex >= 0) {
