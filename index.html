@@ -16,7 +16,7 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100vh;
+            height: 100%;
             overflow: hidden; 
             background-color: #f3f4f6; 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -159,17 +159,21 @@
         let currentStepIndex = -1;
 
         function getRatio() {
-            const w = window.innerWidth;
-            const h = window.innerHeight - 80; 
-            const ratioW = w / BASE_WIDTH;
-            const ratioH = h / BASE_HEIGHT;
+            const container = document.getElementById('canvas-container');
+            if (!container || container.clientWidth === 0) return 1;
+            const ratioW = container.clientWidth / BASE_WIDTH;
+            const ratioH = container.clientHeight / BASE_HEIGHT;
             return Math.min(ratioW, ratioH);
         }
 
+        let resizeTimer;
         window.addEventListener('resize', () => {
-            if (currentStepIndex >= 0) {
-                goToStep(currentStepIndex, false, true);
-            }
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (currentStepIndex >= 0) {
+                    goToStep(currentStepIndex, false, true);
+                }
+            }, 100);
         });
 
         function startPresentation(comAudio) {
@@ -304,13 +308,18 @@
             
             const currentRatio = getRatio(); 
             const targetScale = step.scale * currentRatio;
-            const targetX = step.x * currentRatio; 
-            const targetY = step.y * currentRatio; 
+            const targetX = step.x; 
+            const targetY = step.y; 
 
-            const animProps = { animate: !skipAnimation, duration: skipAnimation ? 0 : 1200 };
-
-            panzoom.zoom(targetScale, animProps);
-            panzoom.pan(targetX, targetY, animProps);
+            if (skipAnimation) {
+                panzoom.pan(targetX, targetY, { animate: false });
+                panzoom.zoom(targetScale, { animate: false });
+            } else {
+                panzoom.pan(targetX, targetY, { animate: true, duration: 1200 });
+                setTimeout(() => {
+                    panzoom.zoom(targetScale, { animate: true, duration: 1200 });
+                }, 50);
+            }
 
             updateUI();
 
@@ -318,15 +327,15 @@
             const imgCapa = document.getElementById('img-capa');
 
             if (step.type === 'capa') {
-                blurOverlay.classList.replace('opacity-0', 'opacity-100');
-                imgCapa.classList.replace('opacity-0', 'opacity-100');
-                imgCapa.classList.replace('scale-95', 'scale-100');
-                imgCapa.classList.add('pointer-events-auto');
+                blurOverlay.classList.remove('opacity-0');
+                blurOverlay.classList.add('opacity-100');
+                imgCapa.classList.remove('opacity-0', 'scale-95');
+                imgCapa.classList.add('opacity-100', 'scale-100', 'pointer-events-auto');
             } else {
-                blurOverlay.classList.replace('opacity-100', 'opacity-0');
-                imgCapa.classList.replace('opacity-100', 'opacity-0');
-                imgCapa.classList.replace('scale-100', 'scale-95');
-                imgCapa.classList.remove('pointer-events-auto');
+                blurOverlay.classList.remove('opacity-100');
+                blurOverlay.classList.add('opacity-0');
+                imgCapa.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto');
+                imgCapa.classList.add('opacity-0', 'scale-95');
             }
 
             const audio = document.getElementById('presentation-audio');
@@ -397,18 +406,6 @@
             });
 
             elem.parentElement.addEventListener('wheel', panzoom.zoomWithWheel);
-
-            const resizeObserver = new ResizeObserver(() => {
-                if (currentStepIndex >= 0) {
-                    goToStep(currentStepIndex, false, true);
-                }
-            });
-            
-            const container = document.getElementById('canvas-container');
-            if (container) {
-                resizeObserver.observe(container);
-            }
-
             goToStep(0, false, true);
         }
 
