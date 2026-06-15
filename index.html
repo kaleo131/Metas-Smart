@@ -95,6 +95,7 @@
     </button>
 
     <div id="canvas-container">
+        <!-- O caminho foi reajustado para ficar na mesma pasta para evitar quebras no Vercel -->
         <img id="main-image" src="./metas.png" alt="Mapa Mental Metas SMART">
     </div>
 
@@ -298,6 +299,8 @@
             currentStepIndex = index;
             const step = steps[index];
             
+            calcRatio(); 
+            
             const targetScale = step.scale * currentRatio;
             const targetX = step.x; 
             const targetY = step.y; 
@@ -380,6 +383,7 @@
 
             const applyMagneticCenter = () => {
                 setTimeout(() => {
+                    calcRatio(); 
                     const targetScale = steps[0].scale * currentRatio;
                     if (panzoom.getScale() <= targetScale + 0.1) {
                         panzoom.zoom(targetScale, { animate: true, duration: 1000 });
