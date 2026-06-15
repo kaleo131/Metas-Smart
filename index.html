@@ -95,7 +95,6 @@
     </button>
 
     <div id="canvas-container">
-        <!-- O caminho foi reajustado para ficar na mesma pasta para evitar quebras no Vercel -->
         <img id="main-image" src="./metas.png" alt="Mapa Mental Metas SMART">
     </div>
 
@@ -135,7 +134,6 @@
         let panzoom;
         const elem = document.getElementById('main-image');
         
-        let currentRatio = 1;
         const BASE_WIDTH = 1920;
         const BASE_HEIGHT = 900;
 
@@ -154,20 +152,13 @@
 
         let currentStepIndex = -1;
 
-        function calcRatio() {
+        function getRatio() {
             const container = document.getElementById('canvas-container');
-            if (!container) return;
+            if (!container || container.clientWidth === 0) return 1;
             const ratioW = container.clientWidth / BASE_WIDTH;
             const ratioH = container.clientHeight / BASE_HEIGHT;
-            currentRatio = Math.min(ratioW, ratioH);
+            return Math.min(ratioW, ratioH);
         }
-
-        window.addEventListener('resize', () => {
-            calcRatio();
-            if (currentStepIndex >= 0) {
-                goToStep(currentStepIndex, false);
-            }
-        });
 
         function startPresentation(comAudio) {
             const overlay = document.getElementById('start-overlay');
@@ -291,22 +282,23 @@
             container.scrollBy({ left: direction * 150, behavior: 'smooth' });
         }
 
-        function goToStep(index, syncAudio = true) {
+        function goToStep(index, syncAudio = true, skipAnimation = false) {
             if (!panzoom || index < 0 || index >= steps.length) return;
             
-            if (currentStepIndex === index && !syncAudio) return;
+            if (currentStepIndex === index && !syncAudio && !skipAnimation) return;
 
             currentStepIndex = index;
             const step = steps[index];
             
-            calcRatio(); 
-            
+            const currentRatio = getRatio(); 
             const targetScale = step.scale * currentRatio;
-            const targetX = step.x; 
-            const targetY = step.y; 
+            const targetX = step.x * currentRatio; 
+            const targetY = step.y * currentRatio; 
 
-            panzoom.zoom(targetScale, { animate: true, duration: 1200 });
-            panzoom.pan(targetX, targetY, { animate: true, duration: 1200 });
+            const animProps = { animate: !skipAnimation, duration: skipAnimation ? 0 : 1200 };
+
+            panzoom.zoom(targetScale, animProps);
+            panzoom.pan(targetX, targetY, animProps);
 
             updateUI();
 
@@ -369,8 +361,6 @@
         };
 
         function iniciarPanzoom() {
-            calcRatio();
-
             panzoom = Panzoom(elem, {
                 maxScale: 10,        
                 minScale: 0.1,      
@@ -383,11 +373,11 @@
 
             const applyMagneticCenter = () => {
                 setTimeout(() => {
-                    calcRatio(); 
+                    const currentRatio = getRatio(); 
                     const targetScale = steps[0].scale * currentRatio;
                     if (panzoom.getScale() <= targetScale + 0.1) {
                         panzoom.zoom(targetScale, { animate: true, duration: 1000 });
-                        panzoom.pan(steps[0].x, steps[0].y, { animate: true, duration: 1000 });
+                        panzoom.pan(steps[0].x * currentRatio, steps[0].y * currentRatio, { animate: true, duration: 1000 });
                         if (currentStepIndex !== 0) {
                             currentStepIndex = 0; 
                             updateUI();
@@ -399,7 +389,18 @@
             elem.addEventListener('panzoomzoom', applyMagneticCenter);
             elem.addEventListener('panzoomend', applyMagneticCenter);
 
-            goToStep(0, false);
+            const resizeObserver = new ResizeObserver(() => {
+                if (currentStepIndex >= 0) {
+                    goToStep(currentStepIndex, false, true);
+                }
+            });
+            
+            const container = document.getElementById('canvas-container');
+            if (container) {
+                resizeObserver.observe(container);
+            }
+
+            goToStep(0, false, true);
         }
 
         document.addEventListener('keydown', (e) => {
