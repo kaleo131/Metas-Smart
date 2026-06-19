@@ -2,543 +2,418 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Objetivos de Negócio | RH - Cury</title>
-    
-    <meta name="robots" content="noindex">
-
-    <link rel="icon" type="image/png" href="icone.png">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Saira:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Guia Prático de Metas SMART | RH - Cury</title>
+    <link rel="icon" href="icone.png" type="image/png">
+    <link rel="shortcut icon" href="icone.png" type="image/png">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Saira', 'sans-serif'],
-                    },
-                    colors: {
-                        cury: {
-                            dark: '#17379b',
-                            blue: '#1749e3',
-                            light: '#53ade6',
-                            green: '#31c09d',
-                            orange: '#e16944',
-                            purple: '#9120bb',
-                            bg: '#f4f4f4'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
+    <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        /* Configuração do Fundo Fixo com Transparência 0.60 e Imagem Local PNG */
-        body { 
-            background-color: #f4f4f4; 
-            color: #1e293b; 
-            background-image: linear-gradient(rgba(244, 244, 244, 0.88), rgba(244, 244, 244, 0.60)), url('fundo.png');
-            background-attachment: fixed;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-        
-        .step-content { display: none; }
-        .step-content.open { display: block; animation: fadeIn 0.3s ease-in-out; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .print-img {
+        body, html {
+            margin: 0;
+            padding: 0;
             width: 100%;
-            border-radius: 0.5rem;
-            border: 1px solid #e2e8f0;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            cursor: zoom-in;
-            transition: opacity 0.2s;
+            height: 100%;
+            overflow: hidden; 
+            background-color: #f3f4f6; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
         }
 
-        .print-img:hover {
-            opacity: 0.85;
+        #canvas-container {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: grab;
+            position: relative;
+            overflow: hidden;
         }
 
-        @media print {
-            @page { margin: 1cm; }
-            body { background-image: none !important; background-color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .print-hidden { display: none !important; }
-            .step-content { display: block !important; border-top: 1px solid #e2e8f0; }
-            .step-header-print { display: flex !important; }
-            .step-header-screen { display: none !important; }
-            .step-card { break-inside: avoid; border: 1px solid #cbd5e1 !important; margin-bottom: 24px !important; box-shadow: none !important; }
-            img { break-inside: avoid; }
-            .print-bg-white { background-color: white !important; }
-            .print-border { border: 1px solid #cbd5e1 !important; }
-            .print-text-dark { color: #1e293b !important; }
+        #canvas-container:active {
+            cursor: grabbing;
+        }
+
+        #main-image {
+            max-width: none;
+            width: 1920px; 
+            transform-origin: center center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        @media (max-width: 640px) {
+            .hide-on-mobile { display: none; }
         }
     </style>
-
-    <script>
-      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-    </script>
-    <script src="/_vercel/insights/script.js"></script>
-
 </head>
-<body class="font-sans antialiased selection:bg-cury-light/30 selection:text-cury-dark flex flex-col min-h-screen relative">
+<body class="antialiased text-gray-800">
 
-    <div id="side-menu-overlay" class="fixed inset-0 bg-black/50 z-[60] hidden opacity-0 transition-opacity duration-300" onclick="toggleMenu()"></div>
-    
-    <div id="side-menu" class="fixed top-0 left-0 h-full w-72 bg-white shadow-2xl z-[70] transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col print:hidden">
-        <div class="bg-cury-dark p-6 flex items-center justify-between">
-            <div class="flex items-center gap-3 text-white">
-                <i data-lucide="menu"></i>
-                <span class="font-bold text-lg">Menu de Acesso</span>
+    <div id="start-overlay" class="fixed inset-0 z-[100] bg-white/70 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="bg-white p-8 md:p-12 rounded-3xl shadow-2xl flex flex-col items-center max-w-lg w-11/12 text-center border border-slate-200 transform transition-transform">
+            
+            <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-6 animate-bounce">
+                <i data-lucide="play" class="w-10 h-10 ml-1"></i>
             </div>
-            <button onclick="toggleMenu()" class="text-white hover:text-cury-light transition-colors">
-                <i data-lucide="x"></i>
+            
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-800 mb-3">Guia Prático de Metas SMART</h1>
+            <p class="text-slate-500 mb-8">Bem-vindo(a) ao guia interativo de Metas SMART. Escolha como deseja iniciar a apresentação.</p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 w-full justify-center">
+                <button onclick="startPresentation(true)" class="px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-base transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 w-full sm:flex-1">
+                    <i data-lucide="volume-2" class="w-5 h-5"></i>
+                    Com Áudio
+                </button>
+                <button onclick="startPresentation(false)" class="px-6 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-full font-bold text-base transition-transform hover:scale-105 active:scale-95 shadow-sm flex items-center justify-center gap-2 w-full sm:flex-1">
+                    <i data-lucide="volume-x" class="w-5 h-5"></i>
+                    Sem Áudio
+                </button>
+            </div>
+            
+        </div>
+    </div>
+
+    <a href="https://biblioteca-de-metodologias-rh-cury.vercel.app/" class="fixed top-4 left-4 z-[999] bg-white/90 backdrop-blur-sm border border-slate-200 px-4 py-2 rounded-xl shadow-md flex items-center gap-2 hover:bg-slate-50 text-slate-700 transition-all font-medium text-sm">
+        <i data-lucide="library" class="w-4 h-4 text-blue-600"></i>
+        <span class="hide-on-mobile">Biblioteca</span>
+    </a>
+
+    <button onclick="toggleFullScreen()" class="fixed top-4 right-4 z-[999] bg-white/90 backdrop-blur-sm border border-slate-200 px-4 py-2 rounded-xl shadow-md flex items-center gap-2 hover:bg-slate-50 text-slate-700 transition-all font-medium text-sm">
+        <i data-lucide="maximize" id="fullscreen-icon" class="w-4 h-4 text-blue-600"></i>
+        <span class="hide-on-mobile" id="fullscreen-text">Tela Cheia</span>
+    </button>
+
+    <div id="canvas-container" class="bg-[#f3f4f6]">
+        <img id="main-image" src="./metas.png" alt="Mapa Mental Metas SMART">
+        
+        <div id="blur-overlay" class="absolute inset-0 bg-[#f3f4f6]/85 backdrop-blur-md opacity-0 transition-opacity duration-1000 z-10 pointer-events-none"></div>
+        <img id="img-capa" src="capa.png" alt="Capa Metas SMART" class="absolute max-w-5xl w-11/12 max-h-[85%] object-contain opacity-0 transition-all duration-1000 scale-95 z-20 pointer-events-none">
+    </div>
+
+    <div class="min-h-[80px] bg-white border-t border-slate-200 px-2 md:px-8 w-full flex flex-col md:flex-row items-center justify-between shrink-0 shadow-[0_-4px_15px_rgba(0,0,0,0.02)] z-50 relative py-3 md:py-0 gap-3 md:gap-0">
+        
+        <div class="w-1/4 hidden md:block"></div>
+
+        <div class="flex-1 flex w-full md:w-auto justify-center items-center gap-1 md:gap-3">
+            <button onclick="scrollCarousel(-1)" class="p-1 md:p-2 rounded-full text-slate-400 hover:text-blue-600 hover:bg-slate-100 transition-colors shrink-0">
+                <i data-lucide="chevron-left" class="w-4 h-4 md:w-5 md:h-5"></i>
+            </button>
+
+            <div class="flex items-center justify-start gap-2 overflow-x-auto no-scrollbar py-2 scroll-smooth w-[260px] md:w-[380px]" id="pagination-container">
+            </div>
+
+            <button onclick="scrollCarousel(1)" class="p-1 md:p-2 rounded-full text-slate-400 hover:text-blue-600 hover:bg-slate-100 transition-colors shrink-0">
+                <i data-lucide="chevron-right" class="w-4 h-4 md:w-5 md:h-5"></i>
             </button>
         </div>
-        
-        <nav class="p-4 flex-grow flex flex-col gap-2">
-            <a href="https://manual-ciclo-performance-rh-cury.vercel.app/" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-100 text-cury-dark font-medium transition-colors">
-                <i data-lucide="layout-grid" class="w-5 h-5 text-cury-light"></i>
-                Hub Central
-            </a>
-            
-            <div class="w-full h-px bg-slate-200 my-2"></div>
 
-            <div class="flex items-center gap-3 p-3 rounded-lg bg-cury-green/10 text-cury-green font-bold border border-cury-green/20">
-                <i data-lucide="target" class="w-5 h-5"></i>
-                Ciclo de Metas
-                <span class="ml-auto w-2 h-2 rounded-full bg-cury-green"></span>
+        <div class="flex items-center justify-center md:justify-end w-full md:w-1/4">
+            <div class="flex flex-col items-center md:items-end w-[90%] md:w-auto">
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest md:mr-1 mb-0.5">Narração</span>
+                <audio id="presentation-audio" src="./audio.mp3" controls class="h-8 md:h-10 w-full md:w-64 outline-none rounded-lg bg-slate-50"></audio>
             </div>
-            
-            <a href="https://manual-pdi-cury.vercel.app/" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-100 text-cury-dark font-medium transition-colors">
-                <i data-lucide="trending-up" class="w-5 h-5 text-cury-blue"></i>
-                Guia do PDI
-            </a>
-
-            <div class="w-full h-px bg-slate-200 my-2"></div>
-
-            <a href="https://biblioteca-de-metodologias-rh-cury.vercel.app/" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-100 text-cury-dark font-medium transition-colors">
-                <i data-lucide="play-circle" class="w-5 h-5 text-cury-purple"></i>
-                Biblioteca de Metodologias
-            </a>
-        </nav>
-        
-        <div class="p-4 border-t border-slate-200">
-            <p class="text-xs text-slate-500 font-medium text-center">Cury Construtora - Remuneração</p>
         </div>
     </div>
 
-    <header class="bg-cury-dark text-white border-b-4 border-cury-green sticky top-0 z-50 shadow-md print:static print:shadow-none">
-        <div class="max-w-5xl mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                
-                <button onclick="toggleMenu()" class="p-2 -ml-2 hover:bg-white/10 rounded-lg transition-colors print:hidden flex items-center justify-center">
-                    <i data-lucide="menu" class="w-6 h-6"></i>
-                </button>
-                <div class="h-8 w-px bg-white/20 print:hidden hidden md:block"></div>
-
-                <img src="logo.png" alt="Logo Cury" class="h-10 w-auto print:invert-0" onerror="this.src='https://placehold.co/100x40/17379b/ffffff?text=CURY'">
-                <div class="h-8 w-px bg-white/20 hidden md:block print:bg-slate-400"></div>
-                <div>
-                    <h1 class="text-xl font-extrabold tracking-tight uppercase">Portal de Performance</h1>
-                    <p class="text-xs text-cury-light font-medium print:text-slate-500 hover:text-white transition-colors hover:underline">
-                        <a href="mailto:remuneracao.rh@cury.net">RH - Remuneração</a>
-                    </p>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-3">
-                <div class="text-sm font-bold bg-cury-blue py-2 px-5 rounded-full text-white flex items-center gap-2 border border-cury-light/30 shadow-inner print:border-slate-400 print:text-cury-dark print:bg-slate-100">
-                    <i data-lucide="calendar" class="w-4 h-4"></i> Ciclo 2026
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="flex-grow max-w-5xl mx-auto px-6 py-12 print:py-6 w-full">
-        
-        <section class="mb-12 text-center max-w-3xl mx-auto print:mb-8">
-            <div class="inline-flex items-center justify-center p-3 bg-cury-blue/10 text-cury-blue rounded-full mb-4">
-                <i data-lucide="target" class="w-8 h-8"></i>
-            </div>
-            <h2 class="text-3xl md:text-4xl font-extrabold text-cury-dark mb-4">Guia de Objetivos de Negócio 2026</h2>
-            <p class="text-lg text-slate-600 font-medium leading-relaxed bg-white/60 p-4 rounded-xl shadow-sm border border-slate-200 print-border">
-                O Ciclo de Performance 2026, realizado através do sistema da LG, tem como propósito fortalecer a nossa cultura de resultados. Este processo garante o alinhamento entre as metas individuais de cada profissional e os objetivos estratégicos corporativos, servindo também para reconhecer o desempenho e estimular o desenvolvimento contínuo da equipe.
-            </p>
-        </section>
-
-        <section class="mb-16 print:mb-8 print:break-inside-avoid">
-            <h3 class="text-xl font-bold text-cury-dark mb-6 flex items-center gap-2 bg-white/60 w-fit pr-4 rounded-full">
-                <i data-lucide="calendar" class="text-cury-green"></i> Cronograma Oficial
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                <div class="flex flex-col items-center p-4 rounded-xl border-2 border-slate-200 bg-white print-border print-bg-white">
-                    <div class="p-3 rounded-full mb-3 bg-slate-100 text-slate-500 print-bg-white print-border"><i data-lucide="target"></i></div>
-                    <span class="text-[13px] font-bold text-center mb-1 text-cury-dark">11/02 a 27/03/26</span>
-                    <span class="text-xs text-slate-600 text-center font-medium leading-tight">Inclusão e aprovação das Metas</span>
-                </div>
-                <div class="flex flex-col items-center p-4 rounded-xl border-2 border-cury-orange bg-cury-orange/10 shadow-md md:-translate-y-1 relative print-border print-bg-white">
-                    <span class="absolute -top-3 bg-cury-orange text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm print-hidden">Foco Atual</span>
-                    <div class="p-3 rounded-full mb-3 bg-cury-orange text-white print-bg-white print-border print-text-dark"><i data-lucide="bar-chart-3"></i></div>
-                    <span class="text-[13px] font-bold text-center mb-1 text-cury-orange print-text-dark">27/04 a 08/05/26</span>
-                    <span class="text-[11px] text-slate-700 text-center font-medium leading-tight">Acompanhamento 1º Trim. + Contratações Novos Admitidos</span>
-                </div>
-                <div class="flex flex-col items-center p-4 rounded-xl border-2 border-slate-200 bg-white print-border print-bg-white">
-                    <div class="p-3 rounded-full mb-3 bg-slate-100 text-slate-500 print-bg-white print-border"><i data-lucide="bar-chart-3"></i></div>
-                    <span class="text-[13px] font-bold text-center mb-1 text-cury-dark">01/07 a 15/07/26</span>
-                    <span class="text-[11px] text-slate-600 text-center font-medium leading-tight">Acompanhamento 2º Trim. + Contratações Novos Admitidos</span>
-                </div>
-                <div class="flex flex-col items-center p-4 rounded-xl border-2 border-slate-200 bg-white print-border print-bg-white">
-                    <div class="p-3 rounded-full mb-3 bg-slate-100 text-slate-500 print-bg-white print-border"><i data-lucide="bar-chart-3"></i></div>
-                    <span class="text-[13px] font-bold text-center mb-1 text-cury-dark">05/10 a 16/10/26</span>
-                    <span class="text-[11px] text-slate-600 text-center font-medium leading-tight">Acompanhamento 3º Trim. + Admitidos até 01/10</span>
-                </div>
-                <div class="flex flex-col items-center p-4 rounded-xl border-2 border-slate-200 bg-white print-border print-bg-white">
-                    <div class="p-3 rounded-full mb-3 bg-slate-100 text-slate-500 print-bg-white print-border"><i data-lucide="award"></i></div>
-                    <span class="text-[13px] font-bold text-center mb-1 text-cury-dark">01/12 a 08/01/27</span>
-                    <span class="text-xs text-slate-600 text-center font-medium leading-tight">Avaliação Final das Metas na LG</span>
-                </div>
-            </div>
-            <p class="text-xs text-slate-500 mt-4 text-center font-medium">* O cumprimento dos prazos é essencial para garantir a consistência e a efetividade do processo.</p>
-        </section>
-
-        <section class="mb-12">
-            <h3 class="text-xl font-bold text-cury-dark mb-6 flex items-center gap-2 bg-white/60 w-fit pr-4 rounded-full">
-                <i data-lucide="check-circle-2" class="text-cury-green"></i> Passo a Passo do Profissional
-            </h3>
-
-            <!-- PASSO 1 -->
-            <div class="step-card border border-slate-200 rounded-xl mb-4 bg-white shadow-sm overflow-hidden">
-                <button onclick="toggleStep(1)" class="step-header-screen w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 print-hidden transition-colors">
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-cury-blue/10 text-cury-blue font-extrabold border border-cury-blue/20">1</div>
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="monitor" class="text-cury-light"></i>
-                            <h3 class="text-lg font-bold text-cury-dark">Acessando o Sistema LG</h3>
-                        </div>
-                    </div>
-                    <i data-lucide="chevron-down" id="icon-1" class="text-cury-light transition-transform duration-300"></i>
-                </button>
-                <div class="step-header-print hidden print:flex items-center gap-4 p-4 bg-slate-50 border-b border-slate-200 print-bg-white">
-                    <div class="flex items-center justify-center w-10 h-10 rounded-full bg-slate-200 text-cury-blue font-extrabold border border-slate-300 print-border">1</div>
-                    <h3 class="text-xl font-bold text-cury-dark">Acessando o Sistema LG</h3>
-                </div>
-                
-                <div id="content-1" class="step-content bg-slate-50/50 border-t border-slate-100 print-bg-white">
-                    <div class="p-6 print:p-4">
-                        <p class="text-slate-600 font-medium">Na sua tela inicial do autoatendimento da LG, clique em <strong class="text-cury-dark">CICLO DE PERFORMANCE</strong> para acessar o ambiente de METAS E PERFORMANCE.</p>
-                        
-                        <img src="imagem1.jpg" alt="Tela Inicial LG" class="print-img print-border" loading="lazy" onclick="openLightbox(this.src)">
-                        
-                        <div class="bg-cury-bg p-4 rounded-lg flex items-center gap-3 font-mono text-sm text-cury-dark border border-slate-200 print-bg-white print-border my-4">
-                            <span class="font-bold">Caminho:</span> LG &gt; Autoatendimento &gt; Ciclo de Performance
-                        </div>
-                        
-                        <p class="text-slate-600 font-medium">Na aba <strong class="text-cury-dark">"ATIVIDADES PENDENTES"</strong>, localize a atividade para contratar seus objetivos de negócios. Verifique se você está acessando o ciclo de <strong class="text-cury-dark">2026</strong>.</p>
-                        
-                        <img src="imagem2.jpg" alt="Atividades Pendentes" class="print-img print-border" loading="lazy" onclick="openLightbox(this.src)">
-                        
-                        <p class="text-slate-600 font-medium mt-4">Clique na atividade para abrir a tela de inserção das metas, onde você encontrará também as orientações básicas.</p>
-                        
-                        <img src="imagem3.jpg" alt="Orientações Iniciais" class="print-img print-border" loading="lazy" onclick="openLightbox(this.src)">
-                    </div>
-                </div>
-            </div>
-
-            <!-- PASSO 2 -->
-            <div class="step-card border border-slate-200 rounded-xl mb-4 bg-white shadow-sm overflow-hidden">
-                <button onclick="toggleStep(2)" class="step-header-screen w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 print-hidden transition-colors">
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-cury-blue/10 text-cury-blue font-extrabold border border-cury-blue/20">2</div>
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="target" class="text-cury-light"></i>
-                            <h3 class="text-lg font-bold text-cury-dark">Construção e Cadastro das Metas Individuais</h3>
-                        </div>
-                    </div>
-                    <i data-lucide="chevron-down" id="icon-2" class="text-cury-light transition-transform duration-300"></i>
-                </button>
-                <div class="step-header-print hidden print:flex items-center gap-4 p-4 bg-slate-50 border-b border-slate-200 print-bg-white">
-                    <div class="flex items-center justify-center w-10 h-10 rounded-full bg-slate-200 text-cury-blue font-extrabold border border-slate-300 print-border">2</div>
-                    <h3 class="text-xl font-bold text-cury-dark">Construção e Cadastro das Metas Individuais</h3>
-                </div>
-                
-                <div id="content-2" class="step-content bg-slate-50/50 border-t border-slate-100 print-bg-white">
-                    <div class="p-6 print:p-4">
-                        <p class="text-slate-600 font-medium mb-4">O primeiro passo é determinar se os seus objetivos serão <strong class="text-cury-dark">quantitativos ou qualitativos</strong>. Lembre-se: Todo profissional deverá ter de <strong class="text-cury-dark">03 a 05 metas individuais contratadas</strong> para o ano, e a soma dos pesos deve totalizar 100%.</p>
-                        
-                        <div class="grid md:grid-cols-2 gap-4 mb-4">
-                            <div class="bg-white p-4 rounded-lg border border-cury-light/30 shadow-sm border-t-4 border-t-cury-blue print-border">
-                                <h4 class="font-bold text-cury-blue mb-2 print-text-dark">Metas Quantitativas</h4>
-                                <p class="text-sm text-slate-600 font-medium">São mensuráveis em números (%, Moeda, Quantidade). Ex: Faturamento, volume de vendas, atingir 95% de SLA.</p>
-                            </div>
-                            <div class="bg-white p-4 rounded-lg border border-cury-light/30 shadow-sm border-t-4 border-t-cury-green print-border">
-                                <h4 class="font-bold text-cury-green mb-2 print-text-dark">Metas Qualitativas</h4>
-                                <p class="text-sm text-slate-600 font-medium">Avaliam qualidade ou percepção de entregas. Ex: Melhorar comunicação, entrega de projetos.</p>
-                            </div>
-                        </div>
-
-                        <img src="imagem4.jpg" alt="Tipo da Meta" class="print-img print-border" loading="lazy" onclick="openLightbox(this.src)">
-                        
-                        <p class="text-slate-600 font-medium mt-4">Preencha os objetivos alinhados com a sua liderança, priorizando o uso de verbos no infinitivo. O processo utiliza a metodologia SMART.</p>
-                        
-                        <img src="imagem5.jpg" alt="Campos Iniciais" class="print-img print-border" loading="lazy" onclick="openLightbox(this.src)">
-
-                        <div class="bg-cury-purple/5 border border-cury-purple/20 p-5 rounded-lg flex flex-col gap-4 items-start print-border print-bg-white mt-6">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-cury-purple/10 p-3 rounded-full text-cury-purple shrink-0 print-bg-white print-text-dark print-border">
-                                    <i data-lucide="sparkles"></i>
-                                </div>
-                                <h4 class="font-bold text-cury-purple text-lg print-text-dark">NOVIDADE NA ÁREA: Assistente IA SMART</h4>
-                            </div>
-                            
-                            <p class="text-sm text-slate-700 font-medium">Após digitar o nome do objetivo de forma completa, clique no <strong>"Assistente SMART"</strong>.</p>
-                            <img src="imagem6.jpg" alt="Botão SMART" class="print-img print-border" loading="lazy" onclick="openLightbox(this.src)">
-
-                            <p class="text-sm text-slate-700 font-medium mt-2">A IA fará uma avaliação e sugerirá uma escrita estruturada para a meta.</p>
-                            <img src="imagem7.jpg" alt="Análise da IA" class="print-img print-border" loading="lazy" onclick="openLightbox(this.src)">
-
-                            <p class="text-sm text-slate-700 font-medium mt-2">Caso concorde com a sugestão, clique em <strong class="text-cury-dark print-text-dark">"Aplicar sugestões da IA"</strong> para preencher os demais campos automaticamente.</p>
-                            <img src="imagem8.jpg" alt="Aplicar IA" class="print-img print-border" loading="lazy" onclick="openLightbox(this.src)">
-                            
-                            <p class="text-sm text-slate-700 font-medium mt-2">Os campos autopreenchidos ficarão destacados na cor verde.</p>
-                            <img src="imagem9.jpg" alt="Campos Verde" class="print-img print-border" loading="lazy" onclick="openLightbox(this.src)">
-                            
-                            <p class="text-sm text-slate-700 font-medium mt-2">Os campos que ficaram em branco, devem ser preenchidos por você manualmente.</p>
-                            <img src="imagem10.jpg" alt="Campos em Branco" class="print-img print-border" loading="lazy" onclick="openLightbox(this.src)">
-                        </div>
-                        
-                        <div class="bg-cury-bg p-4 rounded-lg border border-slate-200 print-bg-white print-border mt-6">
-                            <h4 class="font-bold text-cury-dark mb-3 text-sm flex items-center gap-2">
-                                <i data-lucide="info" class="text-cury-blue w-4 h-4 print-text-dark"></i> Esclarecimento dos Campos Manuais
-                            </h4>
-                            <ul class="text-sm text-slate-700 space-y-2 grid sm:grid-cols-2 gap-x-4 font-medium">
-                                <li><strong class="text-cury-dark">Descrição:</strong> O que será feito e por quê.</li>
-                                <li><strong class="text-cury-dark">Método de Avaliação:</strong> Como vai medir (NPS, SLA).</li>
-                                <li><strong class="text-cury-dark">Unidade de Medida:</strong> Formato (%, Moeda, Unidade).</li>
-                                <li><strong class="text-cury-dark">Prazo para Entrega:</strong> Data limite ou fim do ciclo.</li>
-                                <li><strong class="text-cury-dark">Polaridade:</strong> "Quanto Maior/Menor Melhor".</li>
-                                <li><strong class="text-cury-dark">Peso:</strong> Importância (normalmente a soma dá 100%).</li>
-                                <li><strong class="text-cury-dark">Objetivo Mínimo:</strong> Piso aceitável.</li>
-                                <li><strong class="text-cury-dark">Objetivo alcançado:</strong> Alvo ideal.</li>
-                            </ul>
-                        </div>
-
-                        <p class="text-slate-600 font-medium mt-6"><strong>Apuração Periódica:</strong> Durante a contratação, defina a previsão de entrega para os três períodos. Se não se aplicar, marque "Não se aplica" e insira a justificativa obrigatória.</p>
-                        <img src="imagem11.jpg" alt="Apuração Periódica" class="print-img print-border" loading="lazy" onclick="openLightbox(this.src)">
-
-                        <p class="text-slate-600 font-medium mt-4">Ao concluir, clique em "Prosseguir" ou em "OK". É indispensável clicar no botão <strong>CONTRATAR</strong> (no canto esquerdo) para validar o envio.</p>
-                        <img src="imagem12.jpg" alt="Concluir e Salvar" class="print-img print-border" loading="lazy" onclick="openLightbox(this.src)">
-                    </div>
-                </div>
-            </div>
-
-            <!-- PASSO 3 -->
-            <div class="step-card border border-slate-200 rounded-xl mb-4 bg-white shadow-sm overflow-hidden">
-                <button onclick="toggleStep(3)" class="step-header-screen w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 print-hidden transition-colors">
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-cury-blue/10 text-cury-blue font-extrabold border border-cury-blue/20">3</div>
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="users" class="text-cury-light"></i>
-                            <h3 class="text-lg font-bold text-cury-dark">Aprovação / Revisão das Metas Individuais</h3>
-                        </div>
-                    </div>
-                    <i data-lucide="chevron-down" id="icon-3" class="text-cury-light transition-transform duration-300"></i>
-                </button>
-                <div class="step-header-print hidden print:flex items-center gap-4 p-4 bg-slate-50 border-b border-slate-200 print-bg-white">
-                    <div class="flex items-center justify-center w-10 h-10 rounded-full bg-slate-200 text-cury-blue font-extrabold border border-slate-300 print-border">3</div>
-                    <h3 class="text-xl font-bold text-cury-dark">Aprovação / Revisão das Metas Individuais</h3>
-                </div>
-                
-                <div id="content-3" class="step-content bg-slate-50/50 border-t border-slate-100 print-bg-white">
-                    <div class="p-6 print:p-4">
-                        <p class="text-slate-600 font-medium mb-4">Nesta etapa, o gestor deve analisar as metas da sua equipe. Caso identifique a necessidade de ajustes, selecione "Reprovar Meta" nos itens específicos e clique em "Solicitar Revisão". Se estiverem corretos, finalize clicando em "Aprovar".</p>
-                        
-                        <img src="imagem13.jpg" alt="Aprovação do Gestor" class="print-img print-border" loading="lazy" onclick="openLightbox(this.src)">
-                    </div>
-                </div>
-            </div>
-
-            <!-- PASSO 4 -->
-            <div class="step-card border border-slate-200 rounded-xl mb-4 bg-white shadow-sm overflow-hidden">
-                <button onclick="toggleStep(4)" class="step-header-screen w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 print-hidden transition-colors">
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-cury-blue/10 text-cury-blue font-extrabold border border-cury-blue/20">4</div>
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="bar-chart-3" class="text-cury-light"></i>
-                            <h3 class="text-lg font-bold text-cury-dark">Acompanhamentos Trimestrais</h3>
-                        </div>
-                    </div>
-                    <i data-lucide="chevron-down" id="icon-4" class="text-cury-light transition-transform duration-300"></i>
-                </button>
-                <div class="step-header-print hidden print:flex items-center gap-4 p-4 bg-slate-50 border-b border-slate-200 print-bg-white">
-                    <div class="flex items-center justify-center w-10 h-10 rounded-full bg-slate-200 text-cury-blue font-extrabold border border-slate-300 print-border">4</div>
-                    <h3 class="text-xl font-bold text-cury-dark">Acompanhamentos Trimestrais</h3>
-                </div>
-                
-                <div id="content-4" class="step-content bg-slate-50/50 border-t border-slate-100 print-bg-white">
-                    <div class="p-6 print:p-4">
-                        <p class="text-slate-600 font-medium mb-4">A novidade desse ano é que teremos o acompanhamento periódico das metas contratadas. Nos períodos indicados, o profissional deve inserir o atingimento atual e ajustar as previsões.</p>
-                        
-                        <img src="imagem14.jpg" alt="Realizar Acompanhamento" class="print-img print-border" loading="lazy" onclick="openLightbox(this.src)">
-                        
-                        <div class="bg-white border-l-4 border-red-600 p-5 shadow-sm rounded-r-lg print-border my-6">
-                            <h4 class="font-bold text-cury-dark flex items-center gap-2 mb-2"><i data-lucide="alert-octagon" class="text-red-600 w-5 h-5 print-text-dark"></i> Atenção</h4>
-                            <p class="text-sm text-red-700 font-bold">Alterações como renegociação ou cancelamento de metas só podem ser feitas na 1ª e na 2ª etapa de acompanhamento, sempre alinhadas com a liderança. <span class="uppercase">Na 3ª etapa, isso não será mais permitido.</span></p>
-                        </div>
-                        
-                        <img src="imagem15.jpg" alt="Renegociar ou Cancelar" class="print-img print-border" loading="lazy" onclick="openLightbox(this.src)">
-                        
-                        <p class="text-sm font-medium text-slate-600 mt-4 mb-4">Dentro de cada acompanhamento, será possível inserir o atingimento atual da meta e editar o campo "Previsto" dos próximos acompanhamentos.</p>
-                        
-                        <img src="imagem16.jpg" alt="Tabela Acompanhamento" class="print-img print-border" loading="lazy" onclick="openLightbox(this.src)">
-
-                        <div class="mt-8 pt-6 border-t border-slate-200 print-border">
-                            <h4 class="font-bold text-cury-dark flex items-center gap-2 mb-4 text-lg">
-                                <i data-lucide="book-open" class="text-cury-blue"></i>
-                                Próximo Passo: Registro de Feedback (Diário de Bordo)
-                            </h4>
-                            <p class="text-slate-600 font-medium mb-4">Após a finalização do acompanhamento trimestral, é necessário aplicar o feedback na <strong class="text-cury-blue">Metodologia SCI (Situação, Comportamento e Impacto)</strong> junto ao profissional e registrá-lo no sistema. Para isso, na página inicial, clique em <strong class="text-cury-dark">Diário de Bordo</strong>.</p>
-                            
-                            <img src="imagem17.jpg" alt="Diário de Bordo Tela Inicial" class="print-img print-border mb-6" loading="lazy" onclick="openLightbox(this.src)">
-
-                            <div class="bg-cury-bg p-5 rounded-lg border border-slate-200 print-bg-white print-border mb-6">
-                                <ul class="text-sm text-slate-700 space-y-4 font-medium">
-                                    <li>
-                                        No diário de bordo, selecione o nome do profissional. Caso não encontre um profissional, você poderá buscar pelo nome no canto superior direito na aba do Diário.
-                                    </li>
-                                    <li>
-                                        Após selecionar o profissional, começando a escrever, certifique-se de alterar a opção "Compartilhar com:" de "Somente eu" para <strong class="text-cury-orange">"Eu + NOME DO PROFISSIONAL"</strong>. Dessa forma o profissional poderá acompanhar e rever o feedback recebido.
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="flex justify-center">
-                                    <img src="imagem18.jpg" alt="Selecionar Profissional" class="print-img print-border m-0" style="width: 70%;" loading="lazy" onclick="openLightbox(this.src)">
-                                </div>
-                                <div class="flex justify-center">
-                                    <img src="imagem19.jpg" alt="Compartilhar Feedback" class="print-img print-border m-0" style="width: 70%;" loading="lazy" onclick="openLightbox(this.src)">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </section>
-
-        <!-- Footer -->
-        <div class="mt-12 bg-cury-dark text-white p-8 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-8 print-bg-white print-border print-text-dark shadow-xl">
-            <div class="space-y-3 w-full md:w-auto">
-                <h4 class="font-extrabold text-2xl">Precisa de Ajuda?</h4>
-                <p class="text-cury-light text-sm print-text-dark">Envie um e-mail para <strong><a href="mailto:remuneracao.rh@cury.net" class="hover:underline">remuneracao.rh@cury.net</a></strong>.</p>
-                <p class="text-cury-light text-sm print-text-dark">Manual e Book no <strong>Autodoc</strong>.</p>
-            </div>
-            
-            <div class="text-left md:text-right w-full md:w-auto border-t border-white/20 md:border-t-0 pt-4 md:pt-0 print-border">
-                <div class="flex gap-4 mb-3 md:justify-end items-center print-text-dark">
-                    <img src="hashtag1.png" alt="#CulturaConcreta" class="h-6 w-auto print:invert-0">
-                    <img src="hashtag2.png" alt="#SomosCury" class="h-6 w-auto print:invert-0">
-                </div>
-                <p class="font-bold text-lg mt-2">RH - Remuneração</p>
-                <p class="mt-1 text-cury-light text-sm font-medium print-text-dark">O cumprimento dos prazos é essencial.</p>
-            </div>
-        </div>
-
-    </main>
-
-    <div id="lightbox" class="fixed inset-0 bg-black/90 z-[100] hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 print:hidden" onclick="closeLightbox()">
-        <button class="absolute top-6 right-6 text-white hover:text-cury-light transition-colors p-2" onclick="closeLightbox()">
-            <i data-lucide="x" class="w-10 h-10"></i>
-        </button>
-        <img id="lightbox-img" src="" class="max-h-[90vh] max-w-[95vw] object-contain rounded-lg shadow-2xl cursor-default" onclick="event.stopPropagation()">
-        <p class="text-white/60 text-sm mt-4 font-medium uppercase tracking-widest">Clique fora para fechar</p>
+    <div id="global-tooltip" class="fixed z-[120] px-3 py-1.5 bg-slate-800 text-white text-xs md:text-sm whitespace-nowrap rounded-lg shadow-xl pointer-events-none transition-all duration-200 opacity-0 invisible">
+        <span id="global-tooltip-text"></span>
+        <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
     </div>
 
-    <!-- Script de Funcionalidade -->
     <script>
-        // Inicializa os ícones do Lucide
         lucide.createIcons();
 
-        // Inicializar com todas as abas fechadas
-        const openSteps = { 1: false, 2: false, 3: false, 4: false };
+        let panzoom;
+        const elem = document.getElementById('main-image');
         
-        // Aplica o estado inicial
-        for (let i = 1; i <= 4; i++) {
-            updateStepView(i);
+        const BASE_WIDTH = 1920;
+        const BASE_HEIGHT = 900;
+
+        const steps = [
+            { id: 0, title: "1. Capa", scale: 1.73, x: 25, y: 10, time: 0, type: 'capa' },
+            { id: 1, title: "2. Visão Geral", scale: 1.73, x: 25, y: 10, time: 28, type: 'geral' },
+            { id: 2, title: "3. O DNA de uma Meta SMART", scale: 2.12, x: 248, y: -38, time: 49, type: 'geral' },
+            { id: 3, title: "4. S - Específica", scale: 4.24, x: 386, y: 55, time: 67, type: 'geral' },
+            { id: 4, title: "5. M - Mensurável", scale: 4.24, x: 104, y: 49, time: 78, type: 'geral' },
+            { id: 5, title: "6. A - Alcançável", scale: 4.24, x: 252, y: -60, time: 90, type: 'geral' },
+            { id: 6, title: "7. R - Realista", scale: 4.24, x: 395, y: -166, time: 109, type: 'geral' },
+            { id: 7, title: "8. T - Temporal", scale: 4.24, x: 113, y: -167, time: 137, type: 'geral' },
+            { id: 8, title: "9. Do Genérico ao SMART", scale: 3.84, x: -202, y: 55, time: 161, type: 'geral' },
+            { id: 9, title: "10. Checklist de Validação & IA", scale: 4.24, x: -201, y: -140, time: 275, type: 'geral' },
+            { id: 10, title: "11. Resumo Geral", scale: 1.73, x: 25, y: 10, time: 348, type: 'geral' },
+        ];
+
+        let currentStepIndex = -1;
+
+        function getRatio() {
+            const container = document.getElementById('canvas-container');
+            if (!container || container.clientWidth === 0) return 1;
+            const ratioW = container.clientWidth / BASE_WIDTH;
+            const ratioH = container.clientHeight / BASE_HEIGHT;
+            return Math.min(ratioW, ratioH);
         }
 
-        function toggleStep(stepNumber) {
-            const isOpening = !openSteps[stepNumber];
-            for (let i = 1; i <= 4; i++) {
-                openSteps[i] = false;
-                updateStepView(i);
-            }
-            if (isOpening) {
-                openSteps[stepNumber] = true;
-                updateStepView(stepNumber);
-            }
-        }
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (currentStepIndex >= 0) {
+                    goToStep(currentStepIndex, false, true);
+                }
+            }, 100);
+        });
 
-        function updateStepView(stepNumber) {
-            const content = document.getElementById(`content-${stepNumber}`);
-            const icon = document.getElementById(`icon-${stepNumber}`);
-            if (openSteps[stepNumber]) {
-                content.classList.add('open');
-                icon.style.transform = 'rotate(180deg)';
-            } else {
-                content.classList.remove('open');
-                icon.style.transform = 'rotate(0deg)';
-            }
-        }
+        function startPresentation(comAudio) {
+            const overlay = document.getElementById('start-overlay');
+            const audio = document.getElementById('presentation-audio');
 
-        function toggleMenu() {
-            const menu = document.getElementById('side-menu');
-            const overlay = document.getElementById('side-menu-overlay');
-            if (menu.classList.contains('-translate-x-full')) {
-                menu.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
-                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
-            } else {
-                menu.classList.add('-translate-x-full');
-                overlay.classList.add('opacity-0');
-                setTimeout(() => overlay.classList.add('hidden'), 300);
-            }
-        }
-
-        function openLightbox(src) {
-            const lightbox = document.getElementById('lightbox');
-            const lightboxImg = document.getElementById('lightbox-img');
-            lightboxImg.src = src;
-            lightbox.classList.remove('hidden');
-            lightbox.classList.add('flex');
-            setTimeout(() => lightbox.classList.remove('opacity-0'), 10);
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeLightbox() {
-            const lightbox = document.getElementById('lightbox');
-            lightbox.classList.add('opacity-0');
+            overlay.classList.add('opacity-0');
+            
             setTimeout(() => {
-                lightbox.classList.add('hidden');
-                lightbox.classList.remove('flex');
-                document.body.style.overflow = 'auto';
-            }, 300);
+                overlay.classList.add('hidden');
+                
+                if (comAudio && audio) {
+                    audio.playbackRate = 1.25; 
+                    audio.play().catch(e => console.log(e));
+                }
+            }, 500); 
         }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {});
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            const icon = document.getElementById('fullscreen-icon');
+            const text = document.getElementById('fullscreen-text');
+            if (document.fullscreenElement) {
+                icon.setAttribute('data-lucide', 'minimize');
+                text.innerText = 'Sair';
+            } else {
+                icon.setAttribute('data-lucide', 'maximize');
+                text.innerText = 'Tela Cheia';
+            }
+            lucide.createIcons();
+        });
+
+        function initPagination() {
+            const container = document.getElementById('pagination-container');
+            container.innerHTML = ''; 
+            
+            container.insertAdjacentHTML('beforeend', '<div class="shrink-0 w-[130px] md:w-[190px]"></div>');
+
+            steps.forEach((step, index) => {
+                container.insertAdjacentHTML('beforeend', `
+                    <button onclick="goToStep(${index})" 
+                            id="page-btn-${index}" 
+                            onmouseenter="handleMouseEnter(${index}, this)"
+                            onmouseleave="hideGlobalTooltip()"
+                            class="relative flex items-center justify-center rounded-full transition-all duration-300 shrink-0">
+                        <span id="page-label-${index}" class="transition-all duration-300 whitespace-nowrap font-medium"></span>
+                    </button>
+                `);
+            });
+
+            container.insertAdjacentHTML('beforeend', '<div class="shrink-0 w-[130px] md:w-[190px]"></div>');
+            updateUI(); 
+        }
+
+        function updateUI() {
+            steps.forEach((step, index) => {
+                const btn = document.getElementById(`page-btn-${index}`);
+                const label = document.getElementById(`page-label-${index}`);
+                
+                const distance = Math.abs(index - currentStepIndex);
+                
+                if (distance === 0) {
+                    btn.className = "flex items-center justify-center rounded-full transition-all duration-500 bg-blue-600 text-white shadow-md ring-4 ring-blue-100 shrink-0 h-10 px-4 md:px-5 cursor-default";
+                    label.innerText = step.title; 
+                    label.className = "whitespace-nowrap font-bold text-sm md:text-base";
+                } else if (distance === 1) {
+                    btn.className = "flex items-center justify-center rounded-full transition-all duration-500 bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-blue-600 shrink-0 h-10 w-10 cursor-pointer";
+                    label.innerText = index + 1; 
+                    label.className = "font-medium text-sm md:text-base";
+                } else if (distance === 2) {
+                    btn.className = "flex items-center justify-center rounded-full transition-all duration-500 bg-slate-100/80 text-slate-400 hover:bg-slate-200 hover:text-blue-600 shrink-0 h-8 w-8 cursor-pointer";
+                    label.innerText = index + 1; 
+                    label.className = "font-medium text-xs";
+                } else {
+                    btn.className = "flex items-center justify-center rounded-full transition-all duration-500 bg-slate-100/50 text-slate-300 hover:bg-slate-200 hover:text-blue-600 shrink-0 h-6 w-6 cursor-pointer opacity-70 hover:opacity-100";
+                    label.innerText = index + 1; 
+                    label.className = "font-medium text-[10px]";
+                }
+            });
+
+            hideGlobalTooltip(); 
+
+            const activeBtn = document.getElementById(`page-btn-${currentStepIndex}`);
+            if (activeBtn) {
+                setTimeout(() => {
+                    activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }, 100); 
+            }
+        }
+
+        function handleMouseEnter(index, element) {
+            if (index !== currentStepIndex) {
+                const tooltip = document.getElementById('global-tooltip');
+                document.getElementById('global-tooltip-text').innerText = steps[index].title;
+                
+                const rect = element.getBoundingClientRect();
+                
+                tooltip.style.left = (rect.left + rect.width / 2) + 'px';
+                tooltip.style.top = (rect.top - 8) + 'px'; 
+                tooltip.style.transform = 'translate(-50%, -100%)';
+                
+                tooltip.classList.remove('opacity-0', 'invisible');
+            }
+        }
+
+        function hideGlobalTooltip() {
+            const tooltip = document.getElementById('global-tooltip');
+            if (tooltip) tooltip.classList.add('opacity-0', 'invisible');
+        }
+
+        function scrollCarousel(direction) {
+            const container = document.getElementById('pagination-container');
+            container.scrollBy({ left: direction * 150, behavior: 'smooth' });
+        }
+
+        function goToStep(index, syncAudio = true, skipAnimation = false) {
+            if (!panzoom || index < 0 || index >= steps.length) return;
+            
+            if (currentStepIndex === index && !syncAudio && !skipAnimation) return;
+
+            currentStepIndex = index;
+            const step = steps[index];
+            
+            const currentRatio = getRatio(); 
+            const targetScale = step.scale * currentRatio;
+            const targetX = step.x; 
+            const targetY = step.y; 
+
+            if (skipAnimation) {
+                panzoom.pan(targetX, targetY, { animate: false });
+                panzoom.zoom(targetScale, { animate: false });
+            } else {
+                panzoom.pan(targetX, targetY, { animate: true, duration: 1200 });
+                setTimeout(() => {
+                    panzoom.zoom(targetScale, { animate: true, duration: 1200 });
+                }, 50);
+            }
+
+            updateUI();
+
+            const blurOverlay = document.getElementById('blur-overlay');
+            const imgCapa = document.getElementById('img-capa');
+
+            if (step.type === 'capa') {
+                blurOverlay.classList.remove('opacity-0');
+                blurOverlay.classList.add('opacity-100');
+                imgCapa.classList.remove('opacity-0', 'scale-95');
+                imgCapa.classList.add('opacity-100', 'scale-100', 'pointer-events-auto');
+            } else {
+                blurOverlay.classList.remove('opacity-100');
+                blurOverlay.classList.add('opacity-0');
+                imgCapa.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto');
+                imgCapa.classList.add('opacity-0', 'scale-95');
+            }
+
+            const audio = document.getElementById('presentation-audio');
+            if (syncAudio && audio) {
+                audio.currentTime = step.time;
+            }
+        }
+
+        const audioPlayer = document.getElementById('presentation-audio');
+        if (audioPlayer) {
+            audioPlayer.addEventListener('timeupdate', () => {
+                const currentTime = audioPlayer.currentTime;
+                let targetStep = 0;
+
+                for (let i = steps.length - 1; i >= 0; i--) {
+                    if (currentTime >= steps[i].time) {
+                        targetStep = i;
+                        break;
+                    }
+                }
+
+                if (currentStepIndex !== targetStep) {
+                    goToStep(targetStep, false); 
+                }
+            });
+
+            audioPlayer.addEventListener('ended', () => {
+                goToStep(0, false);
+            });
+        }
+
+        function nextStep() {
+            if (currentStepIndex < steps.length - 1) {
+                goToStep(currentStepIndex + 1);
+            } else {
+                goToStep(0);
+            }
+        }
+
+        function prevStep() {
+            if (currentStepIndex > 0) {
+                goToStep(currentStepIndex - 1);
+            }
+        }
+
+        window.onload = () => {
+            initPagination(); 
+            
+            if (audioPlayer) {
+                audioPlayer.playbackRate = 1.25;
+            }
+            
+            if (elem.complete && elem.naturalHeight !== 0) {
+                iniciarPanzoom();
+            } else {
+                elem.onload = iniciarPanzoom;
+                elem.onerror = () => console.error("Erro ao carregar a imagem 'metas.png'.");
+            }
+        };
+
+        function iniciarPanzoom() {
+            panzoom = Panzoom(elem, {
+                maxScale: 10,        
+                minScale: 0.1,      
+                step: 0.15,         
+                animate: true,      
+                duration: 1200,     
+            });
+
+            elem.parentElement.addEventListener('wheel', panzoom.zoomWithWheel);
+            goToStep(0, false, true);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Space') nextStep();
+            if (e.key === 'ArrowLeft') prevStep();
+        });
+
     </script>
 </body>
 </html>
